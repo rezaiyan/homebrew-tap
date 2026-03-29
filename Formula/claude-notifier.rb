@@ -1,9 +1,9 @@
 class ClaudeNotifier < Formula
   desc "Desktop notifications for Claude Code — done and waiting alerts"
   homepage "https://github.com/rezaiyan/claude-notifier"
-  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.0.2.tar.gz"
-  sha256 "cac04f6104f9b642b29f8ef608de5ef61d8fdcc33948dc39ec919217e16f756b"
-  version "1.0.2"
+  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.0.3.tar.gz"
+  sha256 "d304b3424dd7fd6163e99f073b6ca51bbdca924016b7c0d6e284d90a0f01b18e"
+  version "1.0.3"
   license "MIT"
   head "https://github.com/rezaiyan/claude-notifier.git", branch: "main"
 
@@ -13,21 +13,28 @@ class ClaudeNotifier < Formula
     libexec.install "claude-notifier.py"
     libexec.install "scripts/patch-settings.py"
     libexec.install "scripts/unpatch-settings.py"
-  end
 
-  # Runs as the installing user (not root), so Path.home() is correct.
-  def post_install
-    system "python3", "#{libexec}/patch-settings.py", "#{libexec}/claude-notifier.py"
+    # Bin wrappers run in the user's shell context (no sandbox), so they can
+    # write to ~/.claude/settings.json — unlike post_install which is sandboxed.
+    (bin/"claude-notifier-setup").write <<~SH
+      #!/bin/bash
+      exec python3 "#{libexec}/patch-settings.py" "#{libexec}/claude-notifier.py"
+    SH
+
+    (bin/"claude-notifier-teardown").write <<~SH
+      #!/bin/bash
+      exec python3 "#{libexec}/unpatch-settings.py" "#{libexec}/claude-notifier.py"
+    SH
   end
 
   def caveats
     <<~EOS
-      claude-notifier has been registered as a Claude Code Stop hook.
+      To register the Claude Code hook, run:
+        claude-notifier-setup
 
-      To uninstall cleanly, remove the hook entry from settings.json first:
-        python3 #{opt_libexec}/unpatch-settings.py #{opt_libexec}/claude-notifier.py
-
-      Then uninstall: brew uninstall claude-notifier
+      To uninstall cleanly:
+        claude-notifier-teardown
+        brew uninstall claude-notifier
 
       For click-to-focus notifications, also install terminal-notifier:
         brew install terminal-notifier
