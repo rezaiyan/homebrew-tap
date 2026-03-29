@@ -1,9 +1,9 @@
 class ClaudeNotifier < Formula
   desc "Desktop notifications for Claude Code — done and waiting alerts"
   homepage "https://github.com/rezaiyan/claude-notifier"
-  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.0.3.tar.gz"
-  sha256 "d304b3424dd7fd6163e99f073b6ca51bbdca924016b7c0d6e284d90a0f01b18e"
-  version "1.0.3"
+  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.0.4.tar.gz"
+  sha256 "b4c2e1d14511659599e08542ca21d56b6fe253584f279f46f0f488867510b943"
+  version "1.0.4"
   license "MIT"
   head "https://github.com/rezaiyan/claude-notifier.git", branch: "main"
 
@@ -18,7 +18,24 @@ class ClaudeNotifier < Formula
     # write to ~/.claude/settings.json — unlike post_install which is sandboxed.
     (bin/"claude-notifier-setup").write <<~SH
       #!/bin/bash
-      exec python3 "#{libexec}/patch-settings.py" "#{libexec}/claude-notifier.py"
+      python3 "#{libexec}/patch-settings.py" "#{libexec}/claude-notifier.py" || exit 1
+      BOLD="\\033[1m" GREEN="\\033[0;32m" CYAN="\\033[0;36m" YELLOW="\\033[1;33m" DIM="\\033[2m" NC="\\033[0m"
+      echo
+      echo -e "${BOLD}${GREEN}  ╭──────────────────────────────────────────────────────╮${NC}"
+      echo -e "${BOLD}${GREEN}  │${NC}                                                      ${BOLD}${GREEN}│${NC}"
+      echo -e "${BOLD}${GREEN}  │${NC}   ${BOLD}claude-notifier${NC} is ready                           ${BOLD}${GREEN}│${NC}"
+      echo -e "${BOLD}${GREEN}  │${NC}                                                      ${BOLD}${GREEN}│${NC}"
+      echo -e "${BOLD}${GREEN}  │${NC}   From now on, every Claude Code session will        ${BOLD}${GREEN}│${NC}"
+      echo -e "${BOLD}${GREEN}  │${NC}   notify you the moment Claude finishes a task       ${BOLD}${GREEN}│${NC}"
+      echo -e "${BOLD}${GREEN}  │${NC}   or is waiting for your input.                      ${BOLD}${GREEN}│${NC}"
+      echo -e "${BOLD}${GREEN}  │${NC}                                                      ${BOLD}${GREEN}│${NC}"
+      echo -e "${BOLD}${GREEN}  │${NC}   ${CYAN}◆  Claude Code — Done${NC}     task completed           ${BOLD}${GREEN}│${NC}"
+      echo -e "${BOLD}${GREEN}  │${NC}   ${YELLOW}◆  Claude Code — Waiting${NC}  needs your input         ${BOLD}${GREEN}│${NC}"
+      echo -e "${BOLD}${GREEN}  │${NC}                                                      ${BOLD}${GREEN}│${NC}"
+      echo -e "${BOLD}${GREEN}  │${NC}   ${DIM}Switch away freely — Claude will tap you.${NC}          ${BOLD}${GREEN}│${NC}"
+      echo -e "${BOLD}${GREEN}  │${NC}                                                      ${BOLD}${GREEN}│${NC}"
+      echo -e "${BOLD}${GREEN}  ╰──────────────────────────────────────────────────────╯${NC}"
+      echo
     SH
 
     (bin/"claude-notifier-teardown").write <<~SH
@@ -29,15 +46,23 @@ class ClaudeNotifier < Formula
 
   def caveats
     <<~EOS
-      To register the Claude Code hook, run:
+      ┌─────────────────────────────────────────────────────┐
+      │  ⚡ One more step to activate claude-notifier       │
+      └─────────────────────────────────────────────────────┘
+
         claude-notifier-setup
 
-      To uninstall cleanly:
-        claude-notifier-teardown
-        brew uninstall claude-notifier
+      Registers the hook in ~/.claude/settings.json.
+      Every Claude Code session will then notify you when
+      Claude finishes a task or needs your input.
 
-      For click-to-focus notifications, also install terminal-notifier:
+      ─────────────────────────────────────────────────────
+      To uninstall cleanly:
+        claude-notifier-teardown && brew uninstall claude-notifier
+
+      Optional – click notification to jump back to terminal:
         brew install terminal-notifier
+      ─────────────────────────────────────────────────────
     EOS
   end
 
