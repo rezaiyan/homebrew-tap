@@ -1,16 +1,10 @@
 class ClaudeNotifier < Formula
   desc "Desktop notifications for Claude Code — done and waiting alerts"
   homepage "https://github.com/rezaiyan/claude-notifier"
-  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.1.6.tar.gz"
-  sha256 "2dc13396bc9dd743de4e5460cee2867175efce02447b89e78ded6909a5effcee"
-  version "1.1.6"
+  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.1.8.tar.gz"
+  sha256 "eb6e0241f705d38f6a9a96f82bb500238af2278df46a0be04bb04f51ae3cd917"
+  version "1.1.8"
   license "MIT"
-
-  bottle do
-    root_url "https://github.com/rezaiyan/claude-notifier/releases/download/v1.1.6"
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "d7ce15152ba63ad7a9a6d667afdf5e2e09473f8f4381c0f1321dbb4ec0a1446e"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma: "0db9aa9fcb777f8b56941bdd7417681888699341bd311864b785fc5e8a9ff11a"
-  end
   head "https://github.com/rezaiyan/claude-notifier.git", branch: "main"
 
   depends_on :macos
@@ -72,7 +66,7 @@ class ClaudeNotifier < Formula
 
   def caveats
     <<~EOS
-      Run once to activate:
+      Run after install or upgrade to activate:
         claude-notifier-setup
 
       To uninstall cleanly:
