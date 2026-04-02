@@ -1,9 +1,9 @@
 class ClaudeNotifier < Formula
   desc "Desktop notifications for Claude Code — done and waiting alerts"
   homepage "https://github.com/rezaiyan/claude-notifier"
-  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.0.7.tar.gz"
-  sha256 "97cdc48062342a3d84112d71a3be05410396dc1c4c8bbbeabb27c0b3895626c6"
-  version "1.0.7"
+  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.0.8.tar.gz"
+  sha256 "aa49746c4dc26bef419e1bff090a17ab4a83e01f5a5f3901ecf9fc38ba244e2d"
+  version "1.0.8"
   license "MIT"
   head "https://github.com/rezaiyan/claude-notifier.git", branch: "main"
 
@@ -60,7 +60,6 @@ class ClaudeNotifier < Formula
     # Homebrew's sandbox blocks writes to ~/.claude/settings.json from post_install.
     # Workaround: bootstrap a one-shot LaunchAgent so launchd spawns claude-notifier-setup
     # outside the sandbox. The setup script cleans up the plist after it runs.
-    uid        = `id -u`.chomp
     home       = `echo $HOME`.chomp
     plist_label = "com.rezaiyan.claude-notifier-setup"
     plist_path  = etc/"#{plist_label}.plist"
@@ -89,7 +88,9 @@ class ClaudeNotifier < Formula
       </plist>
     XML
 
-    system "launchctl", "bootstrap", "gui/#{uid}", plist_path.to_s
+    # launchctl load uses the legacy Mach IPC path, which is reachable from
+    # within Homebrew's sandbox (unlike bootstrap, which requires XPC to gui/UID).
+    system "launchctl", "load", "-w", plist_path.to_s
   rescue StandardError
     nil
   end
