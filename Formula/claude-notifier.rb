@@ -7,8 +7,9 @@ class ClaudeNotifier < Formula
   license "MIT"
 
   bottle do
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "b9977abda9918e0637752d26e9680695c80d1a51a5dbaa8eaed9551355ed3eb0"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma: "babf70b907580075010e60e82607126bd0c875742d0f70042bb6dd65163d2dd7"
+    root_url "https://github.com/rezaiyan/claude-notifier/releases/download/v1.1.0"
+    sha256 cellar: :any_skip_relocation, arm64_sequoia: "14fc96028f3f35cf99c901d7f722b13a03e0706632cf38aa10e248fecf7851aa"
+    sha256 cellar: :any_skip_relocation, arm64_sonoma: "457ffca380e43aed25b05a901e95bf96683a00b61ab5e082c7f6c3ee2ebe02fd"
   end
   head "https://github.com/rezaiyan/claude-notifier.git", branch: "main"
 
