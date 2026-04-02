@@ -5,6 +5,11 @@ class ClaudeNotifier < Formula
   sha256 "09b7a669aebae979ccccb00a4726cba188ba4ea3cbad9b6a99c1f0da1aa6bd7c"
   version "1.1.0"
   license "MIT"
+
+  bottle do
+    sha256 cellar: :any_skip_relocation, arm64_sequoia: "4735dc64554d85c05ea1a461f0e0f76a9d16262f946ba0bfbf54e8f513c2cdf5"
+    sha256 cellar: :any_skip_relocation, arm64_sonoma: "15d11d8c0800569eb3b4a6143ea50eec82794aa28cb5643d38b241f9ba8c8af5"
+  end
   head "https://github.com/rezaiyan/claude-notifier.git", branch: "main"
 
   depends_on :macos
