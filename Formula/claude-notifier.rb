@@ -1,21 +1,41 @@
 class ClaudeNotifier < Formula
   desc "Desktop notifications for Claude Code — done and waiting alerts"
   homepage "https://github.com/rezaiyan/claude-notifier"
-  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.0.9.tar.gz"
-  sha256 "0a9ebea79e01ba6e2f35a3920b45e101afed2d515d98ae8c63123c3d7797670d"
-  version "1.0.9"
+  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.1.0.tar.gz"
+  sha256 "09b7a669aebae979ccccb00a4726cba188ba4ea3cbad9b6a99c1f0da1aa6bd7c"
+  version "1.1.0"
   license "MIT"
   head "https://github.com/rezaiyan/claude-notifier.git", branch: "main"
 
   depends_on :macos
+  depends_on xcode: :build  # compile-time only; end users receive pre-built bottles
 
   def install
+    # ── Build the native notification helper ──────────────────────────────────
+    system "swiftc",
+           "-framework", "AppKit",
+           "-framework", "UserNotifications",
+           "Sources/ClaudeNotifier/main.swift",
+           "-o", "ClaudeNotifier"
+
+    # Assemble .app bundle
+    app_contents = prefix/"ClaudeNotifier.app/Contents"
+    (app_contents/"MacOS").mkpath
+    app_contents.install "Sources/ClaudeNotifier/Info.plist"
+    (app_contents/"MacOS").install "ClaudeNotifier"
+
+    # Ad-hoc sign — no Team ID, no cert; safe for open-source distribution.
+    # Homebrew-installed tools are not quarantined, so Gatekeeper is not an issue.
+    system "codesign", "--force", "--deep", "--sign", "-",
+           prefix/"ClaudeNotifier.app"
+
+    # ── Python hook scripts ────────────────────────────────────────────────────
     libexec.install "claude-notifier.py"
     libexec.install "scripts/patch-settings.py"
     libexec.install "scripts/unpatch-settings.py"
 
-    # Bin wrappers run in the user's shell context (no sandbox), so they can
-    # write to ~/.claude/settings.json — unlike post_install which is sandboxed.
+    # Bin wrappers run in the user's shell (no sandbox), so they can write to
+    # ~/.claude/settings.json — unlike post_install which is sandboxed.
     (bin/"claude-notifier-setup").write <<~SH
       #!/bin/bash
       python3 "#{libexec}/patch-settings.py" "#{libexec}/claude-notifier.py" || exit 1
@@ -52,8 +72,6 @@ class ClaudeNotifier < Formula
       To uninstall cleanly:
         claude-notifier-teardown && brew uninstall claude-notifier
 
-      Optional – click notification to jump back to terminal:
-        brew install terminal-notifier
     EOS
   end
 
