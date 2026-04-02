@@ -1,16 +1,10 @@
 class ClaudeNotifier < Formula
   desc "Desktop notifications for Claude Code — done and waiting alerts"
   homepage "https://github.com/rezaiyan/claude-notifier"
-  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.1.0.tar.gz"
-  sha256 "09b7a669aebae979ccccb00a4726cba188ba4ea3cbad9b6a99c1f0da1aa6bd7c"
-  version "1.1.0"
+  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.1.1.tar.gz"
+  sha256 "9d83f8d061076d511d06d2dc59a031810e7e3294c6af67af9d5391f094144b20"
+  version "1.1.1"
   license "MIT"
-
-  bottle do
-    root_url "https://github.com/rezaiyan/claude-notifier/releases/download/v1.1.0"
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "14fc96028f3f35cf99c901d7f722b13a03e0706632cf38aa10e248fecf7851aa"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma: "457ffca380e43aed25b05a901e95bf96683a00b61ab5e082c7f6c3ee2ebe02fd"
-  end
   head "https://github.com/rezaiyan/claude-notifier.git", branch: "main"
 
   depends_on :macos
