@@ -1,9 +1,9 @@
 class ClaudeNotifier < Formula
   desc "Desktop notifications for Claude Code — done and waiting alerts"
   homepage "https://github.com/rezaiyan/claude-notifier"
-  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.0.5.tar.gz"
-  sha256 "2ffca48bb61bada1ce819408f519fde93fc8d0a91004d1a00054fcead9f30e95"
-  version "1.0.5"
+  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.0.6.tar.gz"
+  sha256 "425d888e4450eb449edd394b7dbaa8cef19753522e093871bc63c62c685daacf"
+  version "1.0.6"
   license "MIT"
   head "https://github.com/rezaiyan/claude-notifier.git", branch: "main"
 
@@ -44,26 +44,59 @@ class ClaudeNotifier < Formula
     SH
   end
 
+  def post_install
+    # Register the hook in ~/.claude/settings.json.
+    # Homebrew's sandbox may block this on some macOS configurations —
+    # if so, the caveat below shows the one-time fallback command.
+    system "#{bin}/claude-notifier-setup"
+  rescue StandardError
+    nil
+  end
+
   def caveats
-    <<~EOS
-      ┌─────────────────────────────────────────────────────┐
-      │  ⚡ One more step to activate claude-notifier       │
-      └─────────────────────────────────────────────────────┘
+    hook_path = "#{lib}/claude-notifier/claude-notifier.py"
+    registered = begin
+      require "json"
+      settings = File.expand_path("~/.claude/settings.json")
+      File.exist?(settings) &&
+        JSON.parse(File.read(settings))
+            .dig("hooks", "Stop")
+            &.any? { |b| b["hooks"]&.any? { |h| h["command"]&.include?("claude-notifier") } }
+    rescue StandardError
+      false
+    end
 
-        claude-notifier-setup
+    if registered
+      <<~EOS
+        claude-notifier is active and will notify you when Claude finishes or waits.
 
-      Registers the hook in ~/.claude/settings.json.
-      Every Claude Code session will then notify you when
-      Claude finishes a task or needs your input.
+        To uninstall cleanly:
+          claude-notifier-teardown && brew uninstall claude-notifier
 
-      ─────────────────────────────────────────────────────
-      To uninstall cleanly:
-        claude-notifier-teardown && brew uninstall claude-notifier
+        Optional – click notification to jump back to terminal:
+          brew install terminal-notifier
+      EOS
+    else
+      <<~EOS
+        ┌─────────────────────────────────────────────────────┐
+        │  ⚡ One more step to activate claude-notifier       │
+        └─────────────────────────────────────────────────────┘
 
-      Optional – click notification to jump back to terminal:
-        brew install terminal-notifier
-      ─────────────────────────────────────────────────────
-    EOS
+          claude-notifier-setup
+
+        Registers the hook in ~/.claude/settings.json.
+        Every Claude Code session will then notify you when
+        Claude finishes a task or needs your input.
+
+        ─────────────────────────────────────────────────────
+        To uninstall cleanly:
+          claude-notifier-teardown && brew uninstall claude-notifier
+
+        Optional – click notification to jump back to terminal:
+          brew install terminal-notifier
+        ─────────────────────────────────────────────────────
+      EOS
+    end
   end
 
   test do
