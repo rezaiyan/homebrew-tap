@@ -1,16 +1,10 @@
 class ClaudeNotifier < Formula
   desc "Desktop notifications for Claude Code — done and waiting alerts"
   homepage "https://github.com/rezaiyan/claude-notifier"
-  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.2.5.tar.gz"
-  sha256 "e1413c41a0a95c370fabd33195e364b712cbe13f420d7728ea980ac00a87e24c"
-  version "1.2.5"
+  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.2.6.tar.gz"
+  sha256 "e9b5e15d6e3c98b745812deb1f359ace68792b405b7685cf38ee454edde6337c"
+  version "1.2.6"
   license "MIT"
-
-  bottle do
-    root_url "https://github.com/rezaiyan/claude-notifier/releases/download/v1.2.5"
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "5238a15288c8b3d9e35bbf5e2a802e3006a9b98353793ea9b63b2fb82a9a9d5e"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma: "1b531ab5c42b45284320c43650d845f72af52c5f743ca31a1ffdb68e5164d94f"
-  end
   head "https://github.com/rezaiyan/claude-notifier.git", branch: "main"
 
   depends_on :macos
@@ -39,6 +33,7 @@ class ClaudeNotifier < Formula
     libexec.install "claude-notifier.py"
     libexec.install "scripts/patch-settings.py"
     libexec.install "scripts/unpatch-settings.py"
+    libexec.install "scripts/log-watcher.py"
 
     # Bin wrappers run in the user's shell (no sandbox), so they can write to
     # ~/.claude/settings.json — unlike post_install which is sandboxed.
@@ -49,7 +44,8 @@ class ClaudeNotifier < Formula
 
     (bin/"claude-notifier-setup").write <<~SH
       #!/bin/bash
-      python3 "#{libexec}/patch-settings.py" "#{libexec}/claude-notifier.py" || exit 1
+      python3 "#{libexec}/patch-settings.py" "#{libexec}/claude-notifier.py" \
+        --watcher "#{libexec}/log-watcher.py" || exit 1
       # Request notification permission so the dialog appears at install time,
       # not silently inside a restricted hook subprocess.
       APP_BIN="#{prefix}/ClaudeNotifier.app/Contents/MacOS/ClaudeNotifier"
