@@ -1,16 +1,10 @@
 class ClaudeNotifier < Formula
   desc "Desktop notifications for Claude Code — done and waiting alerts"
   homepage "https://github.com/rezaiyan/claude-notifier"
-  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.3.3.tar.gz"
-  sha256 "9953e905cb206e53e20e65f109251e03b3c5d38c9adc49098d2cb3f806b97111"
-  version "1.3.3"
+  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.3.4.tar.gz"
+  sha256 "3dcf2f27aa5bedfe14687327de3d8b779847fb013c2a0c95f9b234f7a0f87daa"
+  version "1.3.4"
   license "MIT"
-
-  bottle do
-    root_url "https://github.com/rezaiyan/claude-notifier/releases/download/v1.3.3"
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "c86372ef2fc849d24f84cccbf8fc9024977978e8b765cc162bf2b585ddd24ec9"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma: "7ef672da5c288c7f60ae4248343e7a29fb78c3af6a778d8d71bef2f20b279345"
-  end
   head "https://github.com/rezaiyan/claude-notifier.git", branch: "main"
 
   depends_on :macos
@@ -27,8 +21,10 @@ class ClaudeNotifier < Formula
     # Assemble .app bundle
     app_contents = prefix/"ClaudeNotifier.app/Contents"
     (app_contents/"MacOS").mkpath
+    (app_contents/"Resources").mkpath
     app_contents.install "Sources/ClaudeNotifier/Info.plist"
     (app_contents/"MacOS").install "ClaudeNotifier"
+    (app_contents/"Resources").install "Sources/ClaudeNotifier/AppIcon.icns"
 
     # Ad-hoc sign — no Team ID, no cert; safe for open-source distribution.
     # Homebrew-installed tools are not quarantined, so Gatekeeper is not an issue.
