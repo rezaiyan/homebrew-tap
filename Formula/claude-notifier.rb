@@ -1,16 +1,10 @@
 class ClaudeNotifier < Formula
   desc "Desktop notifications for Claude Code — done and waiting alerts"
   homepage "https://github.com/rezaiyan/claude-notifier"
-  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.2.1.tar.gz"
-  sha256 "7cdaae998dc6411a66c0b8a438d7afd346543903fac5fe6c92b92b7252ab1227"
-  version "1.2.1"
+  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.2.2.tar.gz"
+  sha256 "f12d9b550f87335b9a70b1f39c920015f142e7c2d8616daa996d16ee8aef9908"
+  version "1.2.2"
   license "MIT"
-
-  bottle do
-    root_url "https://github.com/rezaiyan/claude-notifier/releases/download/v1.2.1"
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "7e6baa0a4b02dc3575bdede78db0c8b1c306dcf5470ce92d74573dbb4f05d7f1"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma: "9969101bc3eb565bf11f560371bf8d22d090c6f412edcaed29d054b95f315860"
-  end
   head "https://github.com/rezaiyan/claude-notifier.git", branch: "main"
 
   depends_on :macos
@@ -42,6 +36,11 @@ class ClaudeNotifier < Formula
 
     # Bin wrappers run in the user's shell (no sandbox), so they can write to
     # ~/.claude/settings.json — unlike post_install which is sandboxed.
+    (bin/"claude-notifier").write <<~SH
+      #!/bin/bash
+      exec python3 "#{libexec}/claude-notifier.py"
+    SH
+
     (bin/"claude-notifier-setup").write <<~SH
       #!/bin/bash
       python3 "#{libexec}/patch-settings.py" "#{libexec}/claude-notifier.py" || exit 1
