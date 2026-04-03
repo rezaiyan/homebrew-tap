@@ -1,16 +1,10 @@
 class ClaudeNotifier < Formula
   desc "Desktop notifications for Claude Code — done and waiting alerts"
   homepage "https://github.com/rezaiyan/claude-notifier"
-  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.2.6.tar.gz"
-  sha256 "e9b5e15d6e3c98b745812deb1f359ace68792b405b7685cf38ee454edde6337c"
-  version "1.2.6"
+  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.2.7.tar.gz"
+  sha256 "3266580a323c3b61303f75ecf1a4e786b4a6ceffe27ea23c13dfe358842b484d"
+  version "1.2.7"
   license "MIT"
-
-  bottle do
-    root_url "https://github.com/rezaiyan/claude-notifier/releases/download/v1.2.6"
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "1a35cc4b1cc688f416e058bc51726220e06564d9d814230dc90b5bafc22c41b0"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma: "ffe4bfbc00789be436dbe7f55c7ee93d3b25ecfe87a21ea88df644816c3827e5"
-  end
   head "https://github.com/rezaiyan/claude-notifier.git", branch: "main"
 
   depends_on :macos
@@ -45,13 +39,16 @@ class ClaudeNotifier < Formula
     # ~/.claude/settings.json — unlike post_install which is sandboxed.
     (bin/"claude-notifier").write <<~SH
       #!/bin/bash
-      exec python3 "#{libexec}/claude-notifier.py" "$@"
+      exec python3 "#{opt_prefix}/libexec/claude-notifier.py" "$@"
     SH
 
     (bin/"claude-notifier-setup").write <<~SH
       #!/bin/bash
-      python3 "#{libexec}/patch-settings.py" "#{libexec}/claude-notifier.py" \
-        --watcher "#{libexec}/log-watcher.py" || exit 1
+      # Pass the stable opt-prefix path so the registered hook survives brew upgrades.
+      # patch-settings.py itself runs from the versioned libexec (always current), but
+      # the hook path it writes uses the opt symlink, which brew updates on every upgrade.
+      python3 "#{libexec}/patch-settings.py" "#{opt_prefix}/libexec/claude-notifier.py" \
+        --watcher "#{opt_prefix}/libexec/log-watcher.py" || exit 1
       # Request notification permission so the dialog appears at install time,
       # not silently inside a restricted hook subprocess.
       APP_BIN="#{prefix}/ClaudeNotifier.app/Contents/MacOS/ClaudeNotifier"
@@ -81,17 +78,20 @@ class ClaudeNotifier < Formula
 
     (bin/"claude-notifier-teardown").write <<~SH
       #!/bin/bash
-      exec python3 "#{libexec}/unpatch-settings.py" "#{libexec}/claude-notifier.py"
+      exec python3 "#{libexec}/unpatch-settings.py" "#{opt_prefix}/libexec/claude-notifier.py"
     SH
   end
 
   def caveats
     <<~EOS
-      Run after install or upgrade to activate:
+      Run after install to activate:
         claude-notifier-setup
 
+      To check status:
+        claude-notifier
+
       To uninstall cleanly:
-        claude-notifier-teardown && brew uninstall claude-notifier
+        claude-notifier uninstall
 
     EOS
   end
