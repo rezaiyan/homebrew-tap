@@ -1,16 +1,10 @@
 class ClaudeNotifier < Formula
   desc "Desktop notifications for Claude Code — done and waiting alerts"
   homepage "https://github.com/rezaiyan/claude-notifier"
-  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.2.2.tar.gz"
-  sha256 "f12d9b550f87335b9a70b1f39c920015f142e7c2d8616daa996d16ee8aef9908"
-  version "1.2.2"
+  url "https://github.com/rezaiyan/claude-notifier/archive/refs/tags/v1.2.3.tar.gz"
+  sha256 "7495547c18f8d9963a12a94795a36106e6f00faf808d4e96c9bd884f2d10c433"
+  version "1.2.3"
   license "MIT"
-
-  bottle do
-    root_url "https://github.com/rezaiyan/claude-notifier/releases/download/v1.2.2"
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "81010172cd448b14d6496d38d9bd684947902a9d142be89edb7815651f0ceba6"
-    sha256 cellar: :any_skip_relocation, arm64_sonoma: "68553a7d6f8d6270073a5498831ea68d3e57bfbeba209a15e919fed9b05c15d4"
-  end
   head "https://github.com/rezaiyan/claude-notifier.git", branch: "main"
 
   depends_on :macos
@@ -44,12 +38,20 @@ class ClaudeNotifier < Formula
     # ~/.claude/settings.json — unlike post_install which is sandboxed.
     (bin/"claude-notifier").write <<~SH
       #!/bin/bash
-      exec python3 "#{libexec}/claude-notifier.py"
+      exec python3 "#{libexec}/claude-notifier.py" "$@"
     SH
 
     (bin/"claude-notifier-setup").write <<~SH
       #!/bin/bash
       python3 "#{libexec}/patch-settings.py" "#{libexec}/claude-notifier.py" || exit 1
+      # Request notification permission so the dialog appears at install time,
+      # not silently inside a restricted hook subprocess.
+      APP_BIN="#{prefix}/ClaudeNotifier.app/Contents/MacOS/ClaudeNotifier"
+      if [[ -x "$APP_BIN" ]]; then
+        "$APP_BIN" -title "Claude Notifier" -message "Notifications are enabled." \
+                   -subtitle "Setup complete" &>/dev/null &
+        sleep 2
+      fi
       BOLD="\\033[1m" GREEN="\\033[0;32m" CYAN="\\033[0;36m" YELLOW="\\033[1;33m" DIM="\\033[2m" NC="\\033[0m"
       echo
       echo -e "${BOLD}${GREEN}  ╭──────────────────────────────────────────────────────╮${NC}"
