@@ -12,7 +12,10 @@ class ClaudeKitV2 < Formula
 
   def install
     libexec.install Dir["*"]
-    system "bun", "install", "--frozen-lockfile", chdir: libexec
+
+    cd libexec do
+      system "bun", "install", "--frozen-lockfile"
+    end
 
     (bin/"claudekit").write <<~SH
       #!/bin/sh
