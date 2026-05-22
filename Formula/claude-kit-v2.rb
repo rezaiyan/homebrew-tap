@@ -14,7 +14,7 @@ class ClaudeKitV2 < Formula
     libexec.install Dir["*"]
 
     cd libexec do
-      system "bun", "install", "--frozen-lockfile"
+      system "bun", "install"
     end
 
     (bin/"claudekit").write <<~SH
