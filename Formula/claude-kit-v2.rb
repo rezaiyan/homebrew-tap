@@ -13,19 +13,26 @@ class ClaudeKitV2 < Formula
   def install
     libexec.install Dir["*"]
 
+    # Install deps — non-fatal if it fails (bin wrapper self-heals on first run)
     cd libexec do
-      system "bun", "install"
+      quiet_system "bun", "install"
     end
 
+    # Bin wrapper: installs deps if missing, then launches TUI
     (bin/"claudekit").write <<~SH
       #!/bin/sh
-      exec bun "#{libexec}/bin/tui.js" "$@"
+      LIBEXEC="#{libexec}"
+      if [ ! -d "$LIBEXEC/node_modules" ]; then
+        echo "Installing claudekit dependencies..." >&2
+        cd "$LIBEXEC" && bun install --silent
+      fi
+      exec bun "$LIBEXEC/bin/tui.js" "$@"
     SH
   end
 
   def caveats
     <<~EOS
-      claudekit TUI is installed. Run it:
+      Run the TUI to manage tools:
         claudekit
 
       To use the Claude Code plugin (hooks + memory), install via Claude Code:
